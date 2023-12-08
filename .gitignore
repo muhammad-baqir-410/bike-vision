@@ -1,5 +1,5 @@
 # Ignore cache directory
 /__pycache__/
-
+/yolo/__pycache__/
 # Ignore log files
 *.log
