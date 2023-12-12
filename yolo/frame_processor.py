@@ -1,5 +1,6 @@
 import cv2
 import time
+import json
 from datetime import datetime
 from yolo.utils import display_frame, get_json_data, save_results
 
@@ -35,7 +36,13 @@ def process_frames(device, labels):
     start_time = time.monotonic()
     counter = 0
     start_time_infer = time.time()
-    results = {}
+    try:
+        with open('output.json', 'r') as file:
+            results = json.load(file)
+    except:
+        with open('output.json', 'w') as file:
+            results = json.dump({},file)
+
     objects_array = [0, 39]
 
     while True:
@@ -48,9 +55,9 @@ def process_frames(device, labels):
         if current_time - start_time_infer >= SECONDS_INFER:
             frame_result = get_json_data(detections, objects_array)
             start_time_infer = current_time
-            results[datetime.utcfromtimestamp(current_time).strftime('%H:%M:%S')] = frame_result
-
+            results[datetime.fromtimestamp(current_time).strftime('%Y-%m-%d %H:%M:%S')] = frame_result
+            save_results(results)
         if cv2.waitKey(1) == ord(KEY_QUIT):
             break
 
-    save_results(results)
+

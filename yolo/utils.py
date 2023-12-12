@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 import json
+import depthai as dai
+from main import main
 
 # Constants
 JSON_INDENT = 2
@@ -39,4 +41,14 @@ def save_results(results):
             json.dump(results, json_file, indent=JSON_INDENT)
     except IOError as e:
         print(f"Error saving results to file: {e}")
+
+def reconnect_device():
+    con = dai.DeviceBootloader.getFirstAvailableDevice()
+    while not con[0]:
+        print("Connect the Device")
+        con = dai.DeviceBootloader.getFirstAvailableDevice()
+        if con[0]:
+            print("\n\nDevice Connected")
+            main()
+
 

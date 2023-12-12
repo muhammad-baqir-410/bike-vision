@@ -1,4 +1,16 @@
 import depthai as dai
+from yolo.frame_processor import process_frames
+
+def connection_pipeline(pipeline,labels):
+    try:
+        with dai.Device(pipeline) as device:
+            process_frames(device, labels)
+        return False
+    except:
+        print("Building Connection.....")
+
+        connection_pipeline(pipeline,labels)
+        
 
 def setup_pipeline(config, nn_path):
     nnConfig = config.get("nn_config", {})
