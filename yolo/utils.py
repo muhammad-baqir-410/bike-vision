@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import json
 import depthai as dai
-from main import main
 
 # Constants
 JSON_INDENT = 2
