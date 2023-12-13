@@ -11,27 +11,36 @@ After connecting the OAK device, follow these steps:
     ```
 
 ## Running the Model
+1. Create virtual environment:
 
-1. Navigate to the `Documents` directory:
-
-    ```bash
-    cd Documents
+   ```bash
+    conda create -n <name_of_virtualenv> python==3.9
     ```
+    or
+   ```bash
+   python3 -m venv <name_of_virtualenv>
+   ```
+3. Activate the environment using the following command:
 
-2. Activate the environment using the following command:
-
-    ```bash
-    source environments/depthai/bin/activate
+   ```bash
+    source /name_of_virtualenv/bin/activate
     ```
-
-3. Navigate to the `yolo_project` directory:
+    if conda env:
+   ```bash
+   conda activate name_of_virtualenv
+   ```
+4. Navigate to the project directory:
 
     ```bash
-    cd yolo_project
+    cd <project directory>
     ```
+5. Intall the requirements.
 
-4. Run the following command to execute the model:
+   ```bash
+   pip install -r requirements.txt
+   ```
+7. Run the following command to execute the model:
 
     ```bash
-    python yolo.py --model yolov8n_openvino_2022.1_6shave.blob --config yolov8n.json
+    python main.py --model weights/yolov8n_openvino_2022.1_6shave.blob --config weights/yolov8n.json
     ```
