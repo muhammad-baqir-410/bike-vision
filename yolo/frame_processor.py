@@ -2,7 +2,7 @@ import cv2
 import time
 import json
 from datetime import datetime
-from yolo.utils import display_frame, get_json_data, save_results
+from yolo.utils import display_frame, get_json_data, save_results,labels_from_coco_classes
 
 WHITE_COLOR = (255, 255, 255)
 FRAME_SHAPE_Y_POSITION = -4
@@ -10,6 +10,7 @@ FONT_SCALE = 0.4
 RGB_WINDOW = "rgb"
 SECONDS_INFER = 1
 KEY_QUIT = 'q'
+PATH_TO_CLASSES = './classes.txt'
 
 def update_frame_and_detections(q_rgb, q_det, frame, detections, counter, start_time):
     in_rgb = q_rgb.tryGet()
@@ -43,7 +44,8 @@ def process_frames(device, labels):
         with open('output.json', 'w') as file:
             results = json.dump({},file)
 
-    objects_array = [0, 39]
+    # objects_array = [0, 39]
+    objects_array = labels_from_coco_classes(PATH_TO_CLASSES)
 
     while True:
         frame, detections, counter = update_frame_and_detections(q_rgb, q_det, frame, detections, counter, start_time)

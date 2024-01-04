@@ -41,13 +41,40 @@ def save_results(results):
     except IOError as e:
         print(f"Error saving results to file: {e}")
 
-def reconnect_device():
-    con = dai.DeviceBootloader.getFirstAvailableDevice()
-    while not con[0]:
-        print("Connect the Device")
-        con = dai.DeviceBootloader.getFirstAvailableDevice()
-        if con[0]:
-            print("\n\nDevice Connected")
-            main()
+def read_coco_classes(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            classes = [line.strip() for line in file]
+        return classes
+    except IOError as e:
+        print(f"Error reading file: {e}")
+        return []
 
-
+def labels_from_coco_classes(file_path):
+    coco_classes_names = [
+    "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck",
+    "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
+    "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe",
+    "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard",
+    "sports ball", "kite", "baseball bat", "baseball glove", "skateboard", "surfboard",
+    "tennis racket", "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl",
+    "banana", "apple", "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza",
+    "donut", "cake", "chair", "couch", "potted plant", "bed", "dining table", "toilet",
+    "tv", "laptop", "mouse", "remote", "keyboard", "cell phone", "microwave", "oven",
+    "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
+    "hair drier", "toothbrush"
+        ]
+    # Create a mapping between class names and labels
+    coco_classes = read_coco_classes(file_path)
+    
+    coco_class_to_label = {class_name: label for label, class_name in enumerate(coco_classes_names)}
+    object_arrays = []
+    
+    for cls in coco_classes:
+        class_label = coco_class_to_label.get(cls, -1)
+        if class_label != -1:
+            object_arrays.append(class_label)
+        else:
+            print(f"{cls} not found in COCO classes")
+                
+    return object_arrays
