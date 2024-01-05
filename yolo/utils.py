@@ -51,26 +51,18 @@ def read_coco_classes(file_path):
         return []
 
 def labels_from_coco_classes(file_path):
-    coco_classes_names = [
-    "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck",
-    "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
-    "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe",
-    "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard",
-    "sports ball", "kite", "baseball bat", "baseball glove", "skateboard", "surfboard",
-    "tennis racket", "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl",
-    "banana", "apple", "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza",
-    "donut", "cake", "chair", "couch", "potted plant", "bed", "dining table", "toilet",
-    "tv", "laptop", "mouse", "remote", "keyboard", "cell phone", "microwave", "oven",
-    "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
-    "hair drier", "toothbrush"
-        ]
+    # Read the JSON file
+    with open('./weights/yolov8n.json', 'r') as file:
+        data = json.load(file)
+    coco_classes_name = data.get('mappings', {}).get('labels', [])
+
     # Create a mapping between class names and labels
-    coco_classes = read_coco_classes(file_path)
+    coco_given_classes = read_coco_classes(file_path)
     
-    coco_class_to_label = {class_name: label for label, class_name in enumerate(coco_classes_names)}
+    coco_class_to_label = {class_name: label for label, class_name in enumerate(coco_classes_name)}
     object_arrays = []
     
-    for cls in coco_classes:
+    for cls in coco_given_classes:
         class_label = coco_class_to_label.get(cls, -1)
         if class_label != -1:
             object_arrays.append(class_label)
