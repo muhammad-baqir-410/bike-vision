@@ -41,13 +41,32 @@ def save_results(results):
     except IOError as e:
         print(f"Error saving results to file: {e}")
 
-def reconnect_device():
-    con = dai.DeviceBootloader.getFirstAvailableDevice()
-    while not con[0]:
-        print("Connect the Device")
-        con = dai.DeviceBootloader.getFirstAvailableDevice()
-        if con[0]:
-            print("\n\nDevice Connected")
-            main()
+def read_coco_classes(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            classes = [line.strip() for line in file]
+        return classes
+    except IOError as e:
+        print(f"Error reading file: {e}")
+        return []
 
+def labels_from_coco_classes(file_path):
+    # Read the JSON file
+    with open('./weights/yolov8n.json', 'r') as file:
+        data = json.load(file)
+    coco_classes_name = data.get('mappings', {}).get('labels', [])
 
+    # Create a mapping between class names and labels
+    coco_given_classes = read_coco_classes(file_path)
+    
+    coco_class_to_label = {class_name: label for label, class_name in enumerate(coco_classes_name)}
+    object_arrays = []
+    
+    for cls in coco_given_classes:
+        class_label = coco_class_to_label.get(cls, -1)
+        if class_label != -1:
+            object_arrays.append(class_label)
+        else:
+            print(f"{cls} not found in COCO classes")
+                
+    return object_arrays
