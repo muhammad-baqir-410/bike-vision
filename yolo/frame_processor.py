@@ -3,7 +3,7 @@ import time
 import json
 from datetime import datetime
 from yolo.utils import display_frame, get_json_data, save_results,labels_from_coco_classes
-
+# import keyboard
 WHITE_COLOR = (255, 255, 255)
 FRAME_SHAPE_Y_POSITION = -4
 FONT_SCALE = 0.4
@@ -61,5 +61,7 @@ def process_frames(device, labels):
             save_results(results)
         if cv2.waitKey(1) == ord(KEY_QUIT):
             break
-
+        # if keyboard.is_pressed('q'):
+        #     print("You pressed 'q', the program will exit.")
+        #     break
 
