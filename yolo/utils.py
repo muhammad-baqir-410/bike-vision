@@ -76,3 +76,5 @@ def labels_from_coco_classes(file_path):
             print(f"{cls} not found in COCO classes")
                 
     return object_arrays
+
+
