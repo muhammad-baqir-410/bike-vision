@@ -3,7 +3,7 @@ import time
 import serial
 from tracker.config import categories, nnPathDefault
 from datetime import datetime
-from gps_up import is_valid_gps_data, parse_gpgga
+from gps import is_valid_gps_data, parse_gpgga
 
 
 def draw_tracklet_info(frame, label, object_id, status, x1, y1, x2, y2):
