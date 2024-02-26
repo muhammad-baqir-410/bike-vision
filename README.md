@@ -42,5 +42,5 @@ After connecting the OAK device, follow these steps:
 7. Run the following command to execute the model:
 
     ```bash
-    python main.py --model weights/yolov8n_openvino_2022.1_6shave.blob --config weights/yolov8n.json
+    python tracker.py 
     ```
