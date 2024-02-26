@@ -3,7 +3,7 @@ import depthai as dai
 from .config import nnPathDefault, labelMap
 from tracker.utils import process_frames
 import serial
-from gps_up import send_at_command
+from gps import send_at_command
 
     # Connect to device and start pipeline
 def initialize_device(pipeline):
