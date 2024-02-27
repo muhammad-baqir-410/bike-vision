@@ -27,5 +27,6 @@ else:
         with open("serial_number.txt", "w") as f:
             f.write(serial_number)
         print(f"Raspberry Pi Serial Number written to serial_number.txt: {serial_number}")
+        
     else:
         print("Failed to read the Raspberry Pi Serial Number.")
