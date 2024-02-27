@@ -64,6 +64,8 @@ def store_data(current_time, objects_track_history, lat, lon):
     time_for_data = datetime.fromtimestamp(current_time).strftime('%Y-%m-%d %H:%M:%S')
     # print("Current Time: ",time_for_data )
     device_id = get_device_id()
+    if not device_id:
+        device_id = "20"
     unique_class_count = find_unique_class_counts(objects_track_history)
     data_dict["location"] = {"lat": lat, "lng": lon}
     data_dict["description"] = "Device 20"
