@@ -25,9 +25,11 @@ def initialize_device(pipeline):
                 pass
             process_frames(preview_queue, tracklets_queue)
             # return device, preview_queue, tracklets_queue
+        return False
     except Exception as e:
         print(f"Failed to initialize device and pipeline: {e}")
-        raise
+        # raise
+        initialize_device(pipeline)
 
 def create_pipeline(full_frame_tracking, nn_path=nnPathDefault, label_list=None):
     """
