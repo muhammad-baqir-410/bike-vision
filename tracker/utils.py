@@ -82,7 +82,7 @@ def process_frames(preview_queue, tracklets_queue):
             store_data(current_time, objects_track_history,lat,lon)
             # Reset the start time
             start_time = time.time()
-        cv2.imshow("tracker", img_frame)
+        # cv2.imshow("tracker", img_frame)
         if cv2.waitKey(1) == ord('q'):
             break
     if ser_gps is not None:
