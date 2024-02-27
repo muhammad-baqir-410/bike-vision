@@ -4,7 +4,7 @@ import serial
 from tracker.config import categories, nnPathDefault
 from datetime import datetime
 from gps import is_valid_gps_data, parse_gpgga
-
+from tracker.store_data import store_data
 
 def draw_tracklet_info(frame, label, object_id, status, x1, y1, x2, y2):
     """
@@ -40,23 +40,11 @@ def process_tracklets(tracklets_data, frame,objects_track_history):
     
     # return objects_track_history
 
-def store_data(current_time, objects_track_history, lat, lon):
-    data_dict = {}
-    final_data = []
-    time_for_data = datetime.fromtimestamp(current_time).strftime('%Y-%m-%d %H:%M:%S')
-    # print("Current Time: ",time_for_data )
-    unique_class_count = find_unique_class_counts(objects_track_history)
-    data_dict["location"] = {'lat': lat, 'lon': lon}
-    data_dict["description"] = "Device 20"
-    data_dict["bikeID"] = "20"
-    data_dict["dateTime"] = time_for_data
-    data_dict["detectionData"] = unique_class_count   
-    final_data.append(data_dict)
-    print(final_data)
+
 
 def get_gps(ser_gps):
     if ser_gps is None:
-        return None, None
+        return 0, 0
     line = ser_gps.readline().decode('ascii', errors='replace').strip()
     if line.startswith('$GPGGA'):
         if is_valid_gps_data(line):
@@ -65,7 +53,7 @@ def get_gps(ser_gps):
             return lat, lon
         else:
             # print("Waiting for valid GPS data...")
-            return None, None
+            return 0, 0
 
 def process_frames(preview_queue, tracklets_queue):
     start_time = time.time()
@@ -97,7 +85,8 @@ def process_frames(preview_queue, tracklets_queue):
         cv2.imshow("tracker", img_frame)
         if cv2.waitKey(1) == ord('q'):
             break
-    ser_gps.close()
+    if ser_gps is not None:
+        ser_gps.close()
 
 def calculate_fps(start_time, counter):
     """
@@ -139,14 +128,3 @@ def get_keys_from_file(file_path, categories):
                 keys.append(key)
     return keys
 
-
-def find_unique_class_counts(data):
-    result = {}
-    for tracking_id, values in data.items():
-        if values not in result:
-            result[values] = 1
-        else:
-            result[values] += 1
-
-    return result
-    # print(result)
