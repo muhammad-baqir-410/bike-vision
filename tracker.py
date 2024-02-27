@@ -8,7 +8,7 @@ from tracker.config import categories
 
 
 def main():
-    try:
+    # try:
         # Parse arguments
         args = get_parser().parse_args()
         
@@ -27,11 +27,11 @@ def main():
             print("Connect OAK Device")
             check = True
         while check:
-            
-            check = initialize_device(pipeline)
-    except Exception as e:
 
-        print(f"An error occurred: {e}")
+            check = initialize_device(pipeline)
+    # except Exception as e:
+
+    #     print(f"An error occurred: {e}")
     # print('\nThe results are stored in output.json')
 
 
