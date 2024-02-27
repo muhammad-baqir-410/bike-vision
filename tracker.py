@@ -27,6 +27,7 @@ def main():
             print("Connect OAK Device")
             check = True
         while check:
+            
             check = initialize_device(pipeline)
     except Exception as e:
 
