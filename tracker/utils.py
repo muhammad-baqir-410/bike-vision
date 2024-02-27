@@ -55,6 +55,7 @@ def get_gps(ser_gps):
             # print("Waiting for valid GPS data...")
             return 0, 0
 
+
 def process_frames(preview_queue, tracklets_queue):
     start_time = time.time()
     interval = 10
@@ -87,6 +88,7 @@ def process_frames(preview_queue, tracklets_queue):
             break
     if ser_gps is not None:
         ser_gps.close()
+
 
 def calculate_fps(start_time, counter):
     """
