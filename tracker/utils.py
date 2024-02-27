@@ -68,6 +68,7 @@ def process_frames(preview_queue, tracklets_queue):
         ser_gps = serial.Serial('/dev/ttyUSB1', baudrate=9600, timeout=1)
     except:
         ser_gps = None
+    lat_final, lon_final = 0, 0
     # final_data = []
     while True:
         # try:

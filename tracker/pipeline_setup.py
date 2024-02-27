@@ -10,26 +10,26 @@ def initialize_device(pipeline):
     """
     Initialize the device and output queues.
     """
-    # try:
-    with dai.Device(pipeline) as device:
-        print("Device connected, starting pipeline...")
-        preview_queue = device.getOutputQueue("preview", 4, False)
-        tracklets_queue = device.getOutputQueue("tracklets", 4, False)
-        try:
-            # Send initial command to /dev/ttyS0
-            ser_init = serial.Serial('/dev/ttyS0', baudrate=115200, timeout=1)
-            response = send_at_command(ser_init, 'AT+CGPS=1')
-            print("Initial command response:", response)
-            ser_init.close()
-        except:
-            pass
-        process_frames(preview_queue, tracklets_queue)
+    try:
+        with dai.Device(pipeline) as device:
+            print("Device connected, starting pipeline...")
+            preview_queue = device.getOutputQueue("preview", 4, False)
+            tracklets_queue = device.getOutputQueue("tracklets", 4, False)
+            try:
+                # Send initial command to /dev/ttyS0
+                ser_init = serial.Serial('/dev/ttyS0', baudrate=115200, timeout=1)
+                response = send_at_command(ser_init, 'AT+CGPS=1')
+                print("Initial command response:", response)
+                ser_init.close()
+            except:
+                pass
+            process_frames(preview_queue, tracklets_queue)
             # return device, preview_queue, tracklets_queue
     #     return False
-    # except Exception as e:
-    #     print(f"Failed to initialize device and pipeline: {e}")
-    #     # raise
-    #     initialize_device(pipeline)
+    except Exception as e:
+        print(f"Failed to initialize device and pipeline: {e}")
+        # raise
+        initialize_device(pipeline)
 
 def create_pipeline(full_frame_tracking, nn_path=nnPathDefault, label_list=None):
     """
