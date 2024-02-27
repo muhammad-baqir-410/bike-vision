@@ -54,6 +54,8 @@ def get_gps(ser_gps):
         else:
             # print("Waiting for valid GPS data...")
             return 0, 0
+    else:
+        return 0, 0
 
 
 def process_frames(preview_queue, tracklets_queue):
@@ -75,12 +77,17 @@ def process_frames(preview_queue, tracklets_queue):
         tracklets_data = track.tracklets
         process_tracklets(tracklets_data, img_frame,objects_track_history )
         lat, lon = get_gps(ser_gps)
+        if lat or lon:
+            lat_final, lon_final = lat, lon
         # print(f"Latitude: {lat}, Longitude: {lon}")
         # Consider adding more functionality here, such as handling unique object counts
         current_time = time.time()
         elapsed_time = current_time - start_time
         if elapsed_time >= interval:
-            store_data(current_time, objects_track_history,lat,lon)
+            if lat_final or lon_final:
+                store_data(current_time, objects_track_history,lat_final,lon_final)
+            else:
+                store_data(current_time, objects_track_history,lat,lon)
             # Reset the start time
             start_time = time.time()
         # cv2.imshow("tracker", img_frame)
