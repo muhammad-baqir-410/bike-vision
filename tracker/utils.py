@@ -5,6 +5,8 @@ from tracker.config import categories, nnPathDefault
 from datetime import datetime
 from gps import is_valid_gps_data, parse_gpgga
 from tracker.store_data import store_data
+import asyncio
+import aiohttp
 
 def draw_tracklet_info(frame, label, object_id, status, x1, y1, x2, y2):
     """
@@ -37,9 +39,6 @@ def process_tracklets(tracklets_data, frame,objects_track_history):
             process_single_tracklet(t, frame, objects_track_history)
         except Exception as e:
             print(f"Failed to process tracklet: {e}")
-    
-    # return objects_track_history
-
 
 
 def get_gps(ser_gps):
@@ -58,7 +57,7 @@ def get_gps(ser_gps):
         return 0, 0
 
 
-def process_frames(preview_queue, tracklets_queue):
+async def process_frames(preview_queue, tracklets_queue):
     start_time = time.time()
     interval = 10
     img_frame  = None
@@ -69,7 +68,6 @@ def process_frames(preview_queue, tracklets_queue):
     except:
         ser_gps = None
     lat_final, lon_final = 0, 0
-    # final_data = []
     while True:
         # try:
         img_frame_get = preview_queue.get()
@@ -86,12 +84,13 @@ def process_frames(preview_queue, tracklets_queue):
         elapsed_time = current_time - start_time
         if elapsed_time >= interval:
             if lat_final or lon_final:
-                store_data(current_time, objects_track_history,lat_final,lon_final)
+                async with aiohttp.ClientSession() as session:
+                    await store_data(session, current_time, objects_track_history,lat_final,lon_final)
             else:
-                store_data(current_time, objects_track_history,lat,lon)
-            # Reset the start time
+                async with aiohttp.ClientSession() as session:
+                    await store_data(session,current_time, objects_track_history,lat,lon)
             start_time = time.time()
-        # cv2.imshow("tracker", img_frame)
+        cv2.imshow("tracker", img_frame)
         if cv2.waitKey(1) == ord('q'):
             break
     if ser_gps is not None:
@@ -115,6 +114,7 @@ def get_key_from_value(d, value):
         if val == value:
             return key
     return None
+
 
 def get_keys_from_file(file_path, categories):
     """

@@ -3,12 +3,11 @@ from datetime import datetime
 import requests
 import json
 import os
-
-# Path to your JSON file
-# json_file_path = 'data.json'
+import asyncio
+import aiohttp
 
 # Your API Gateway endpoint URL (replace with your actual URL)
-api_url = 'https://q6f8jxco8g.execute-api.us-east-1.amazonaws.com/bike/storeData'
+api_url = 'https://wqmr8jsh9c.execute-api.us-east-1.amazonaws.com/bike/storeData'
 
 
 def find_unique_class_counts(data):
@@ -21,7 +20,6 @@ def find_unique_class_counts(data):
 
     return result
     # print(result)
-
 
 
 def get_raspberry_pi_serial_number():
@@ -57,12 +55,78 @@ def get_device_id():
         else:
             print("Failed to read the Raspberry Pi Serial Number.")
             return None
+        
 
-def store_data(current_time, objects_track_history, lat, lon):
+def is_internet_connected(hostname="www.google.com"):
+    """
+    Checks for internet availability by attempting to reach a reliable host.
+
+    Args:
+        hostname: The hostname to check (default is www.google.com)
+
+    Returns:
+        True if internet is connected, False otherwise.
+    """
+    try:
+        # Try to send a request to the specified hostname
+        requests.get("http://" + hostname, timeout=3)
+        return True
+    except (requests.ConnectionError, requests.Timeout) as exception:
+        return False
+
+
+def save_json_data(data, filename):
+  """
+  Saves JSON-dumped data to a file.
+
+  Args:
+      data: The data to save (any JSON-serializable object).
+      filename: The name of the file to save to.
+  """
+  try:
+    with open(filename, 'w') as f:
+      json.dump(data, f, indent=4)
+    print(f"Data saved successfully to {filename}")
+  except Exception as e:
+    print(f"Error saving data: {e}")
+
+
+
+async def send_data_to_aws(session, data, api_url, headers):
+    """Sends data to AWS asynchronously and handles the response."""
+    data_json = json.dumps(data)
+    async with session.post(api_url, headers=headers, data=data_json) as response:
+        if response.status == 200:
+            print('Success:', await response.text())
+            return True
+        else:
+            print('Failed:', response.status, await response.text())
+            return False
+
+
+def load_json_from_file(filename):
+    """Loads JSON data from a file."""
+    with open(filename, 'r') as f:
+        return json.load(f)
+
+
+async def process_stored_data(session, data_directory, api_url, headers):
+    """Processes stored JSON files and sends them to AWS asynchronously."""
+    for filename in os.listdir(data_directory):
+        if filename.endswith('.json'):
+            filepath = os.path.join(data_directory, filename)
+            data = load_json_from_file(filepath)
+
+            success = await send_data_to_aws(session, data, api_url, headers)
+            if success:
+                os.remove(filepath) 
+
+
+async def store_data(session, current_time, objects_track_history, lat, lon):
     data_dict = {}
     final_data = []
+    data_directory = 'stored_data'
     time_for_data = datetime.fromtimestamp(current_time).strftime('%Y-%m-%d %H:%M:%S')
-    # print("Current Time: ",time_for_data )
     device_id = get_device_id()
     if not device_id:
         device_id = "20"
@@ -76,18 +140,20 @@ def store_data(current_time, objects_track_history, lat, lon):
     # Convert your data to a JSON string
     data_json = json.dumps(final_data)
     print(data_json)
-
     # Headers to include with the request
     headers = {
         'Content-Type': 'application/json'
     }
-
-    # Make the POST request
-    response = requests.post(api_url, headers=headers, data=data_json)
-
-    # Check the response
-    if response.status_code == 200:
-        print('Success:', response.text)
+    # Example usage
+    if is_internet_connected():  # Ensure this check is non-blocking or refactor if necessary
+        async with aiohttp.ClientSession() as session:
+            if os.listdir(data_directory):
+                await process_stored_data(session, data_directory,api_url, headers)  # This function needs to be async too
+            response = await session.post(api_url, headers=headers, data=data_json)
+            if response.status == 200:
+                print('Success:', await response.text())
+            else:
+                print('Failed:', response.status, await response.text())
     else:
-        print('Failed:', response.status_code, response.text)
-
+        save_json_data(final_data, f"{data_directory}/data_{time_for_data}.json")  # Ensure this is non-blocking or refactor if necessary
+        print("No internet connection.")

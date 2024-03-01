@@ -4,6 +4,7 @@ from .config import nnPathDefault, labelMap
 from tracker.utils import process_frames
 import serial
 from gps import send_at_command
+import asyncio
 
     # Connect to device and start pipeline
 def initialize_device(pipeline):
@@ -23,9 +24,9 @@ def initialize_device(pipeline):
                 ser_init.close()
             except:
                 pass
-            process_frames(preview_queue, tracklets_queue)
-            # return device, preview_queue, tracklets_queue
-    #     return False
+            asyncio.run(process_frames(preview_queue, tracklets_queue))
+                # return device, preview_queue, tracklets_queue
+            return False
     except Exception as e:
         print(f"Failed to initialize device and pipeline: {e}")
         # raise
