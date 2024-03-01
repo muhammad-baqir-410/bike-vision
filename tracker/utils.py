@@ -63,12 +63,12 @@ async def process_frames(preview_queue, tracklets_queue):
     img_frame  = None
     objects_track_history = {}
     # Open serial connection for continuous GPS data reading
-    try:
-        ser_gps = serial.Serial('/dev/ttyUSB1', baudrate=9600, timeout=1)
-    except:
-        ser_gps = None
     lat_final, lon_final = 0, 0
     while True:
+        try:
+            ser_gps = serial.Serial('/dev/ttyUSB1', baudrate=9600, timeout=1)
+        except:
+            ser_gps = None
         # try:
         img_frame_get = preview_queue.get()
         img_frame =  img_frame_get.getCvFrame()
@@ -90,7 +90,7 @@ async def process_frames(preview_queue, tracklets_queue):
                 async with aiohttp.ClientSession() as session:
                     await store_data(session,current_time, objects_track_history,lat,lon)
             start_time = time.time()
-        cv2.imshow("tracker", img_frame)
+        # cv2.imshow("tracker", img_frame)
         if cv2.waitKey(1) == ord('q'):
             break
     if ser_gps is not None:
