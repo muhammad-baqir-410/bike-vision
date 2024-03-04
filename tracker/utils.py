@@ -78,7 +78,7 @@ async def process_frames(preview_queue, tracklets_queue):
         lat, lon = get_gps(ser_gps)
         if lat or lon:
             lat_final, lon_final = lat, lon
-        # print(f"Latitude: {lat}, Longitude: {lon}")
+        print(f"Latitude: {lat}, Longitude: {lon}")
         # Consider adding more functionality here, such as handling unique object counts
         current_time = time.time()
         elapsed_time = current_time - start_time
