@@ -90,7 +90,7 @@ async def process_frames(preview_queue, tracklets_queue):
                 async with aiohttp.ClientSession() as session:
                     await store_data(session,current_time, objects_track_history,lat,lon)
             start_time = time.time()
-        cv2.imshow("tracker", img_frame)
+        # cv2.imshow("tracker", img_frame)
         if cv2.waitKey(1) == ord('q'):
             break
     if ser_gps is not None:
