@@ -1,4 +1,3 @@
-
 import depthai as dai
 from tracker.parser import get_parser
 from tracker.pipeline_setup import create_pipeline, initialize_device
