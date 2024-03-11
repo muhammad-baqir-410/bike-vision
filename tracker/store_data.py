@@ -1,11 +1,11 @@
 
-from datetime import datetime
+from datetime import datetime, timezone
 import requests
 import json
 import os
 import asyncio
 import aiohttp
-from zoneinfo import ZoneInfo
+
 # Your API Gateway endpoint URL (replace with your actual URL)
 api_url = 'https://wqmr8jsh9c.execute-api.us-east-1.amazonaws.com/bike/storeData'
 
@@ -125,12 +125,10 @@ async def store_data(session, current_time, objects_track_history, lat, lon):
     data_dict = {}
     final_data = []
     data_directory = 'stored_data'
-    # time_for_data = datetime.fromtimestamp(current_time).strftime('%Y-%m-%d %H:%M:%S')
-    # Convert the timestamp to datetime with the system's local time zone
-    time_for_data_local = datetime.fromtimestamp(current_time).astimezone()
-
+    # Convert the timestamp to a datetime object in UTC
+    time_for_data_utc = datetime.fromtimestamp(current_time, tz=timezone.utc)
     # Convert to a string
-    formatted_time_local = time_for_data_local.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_time_local = time_for_data_utc.strftime('%Y-%m-%d %H:%M:%S')
     device_id = get_device_id()
     if not device_id:
         device_id = "20"
