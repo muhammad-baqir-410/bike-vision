@@ -134,7 +134,7 @@ async def store_data(session, current_time, objects_track_history, lat, lon):
         device_id = "20"
     unique_class_count = find_unique_class_counts(objects_track_history)
     data_dict["location"] = {"lat": lat, "lng": lon}
-    data_dict["description"] = "Device 20"
+    data_dict["description"] = f"Device: {device_id}"
     data_dict["bikeID"] = f"{device_id}"
     data_dict["dateTime"] = formatted_time_local
     data_dict["detectionData"] = unique_class_count   
