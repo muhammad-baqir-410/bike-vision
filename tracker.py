@@ -26,8 +26,6 @@ def main():
             check = initialize_device(pipeline)
     except Exception as e:
         print(f"An error occurred: {e}")
-    # print('\nThe results are stored in output.json')
-
 
 if __name__ == "__main__":
     main()

@@ -25,7 +25,7 @@ def initialize_device(pipeline):
             except:
                 pass
             asyncio.run(process_frames(preview_queue, tracklets_queue))
-                # return device, preview_queue, tracklets_queue
+            
             return False
     except Exception as e:
         print(f"Failed to initialize device and pipeline: {e}")
