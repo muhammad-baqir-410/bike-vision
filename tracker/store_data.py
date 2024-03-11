@@ -5,7 +5,7 @@ import json
 import os
 import asyncio
 import aiohttp
-
+from zoneinfo import ZoneInfo
 # Your API Gateway endpoint URL (replace with your actual URL)
 api_url = 'https://wqmr8jsh9c.execute-api.us-east-1.amazonaws.com/bike/storeData'
 
@@ -116,7 +116,6 @@ async def process_stored_data(session, data_directory, api_url, headers):
         if filename.endswith('.json'):
             filepath = os.path.join(data_directory, filename)
             data = load_json_from_file(filepath)
-
             success = await send_data_to_aws(session, data, api_url, headers)
             if success:
                 os.remove(filepath) 
@@ -126,7 +125,12 @@ async def store_data(session, current_time, objects_track_history, lat, lon):
     data_dict = {}
     final_data = []
     data_directory = 'stored_data'
-    time_for_data = datetime.fromtimestamp(current_time).strftime('%Y-%m-%d %H:%M:%S')
+    # time_for_data = datetime.fromtimestamp(current_time).strftime('%Y-%m-%d %H:%M:%S')
+    # Convert the timestamp to datetime with the system's local time zone
+    time_for_data_local = datetime.fromtimestamp(current_time).astimezone()
+
+    # Convert to a string
+    formatted_time_local = time_for_data_local.strftime('%Y-%m-%d %H:%M:%S')
     device_id = get_device_id()
     if not device_id:
         device_id = "20"
@@ -134,7 +138,7 @@ async def store_data(session, current_time, objects_track_history, lat, lon):
     data_dict["location"] = {"lat": lat, "lng": lon}
     data_dict["description"] = "Device 20"
     data_dict["bikeID"] = f"{device_id}"
-    data_dict["dateTime"] = time_for_data
+    data_dict["dateTime"] = formatted_time_local
     data_dict["detectionData"] = unique_class_count   
     final_data.append(data_dict)
     # Convert your data to a JSON string
@@ -155,5 +159,5 @@ async def store_data(session, current_time, objects_track_history, lat, lon):
             else:
                 print('Failed:', response.status, await response.text())
     else:
-        save_json_data(final_data, f"{data_directory}/data_{time_for_data}.json")  # Ensure this is non-blocking or refactor if necessary
+        save_json_data(final_data, f"{data_directory}/data_{formatted_time_local}.json")  # Ensure this is non-blocking or refactor if necessary
         print("No internet connection.")

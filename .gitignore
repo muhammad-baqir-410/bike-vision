@@ -2,6 +2,8 @@
 /__pycache__/
 /tracker/__pycache__/
 /yolo/__pycache__/
+tracker/__pycache__/utils.cpython-39.pyc/
+tracker/__pycache__/pipeline_setup.cpython-39.pyc/
 # Ignore log files
 *.log
 /output.json                  
