@@ -86,9 +86,11 @@ async def process_frames(preview_queue, tracklets_queue):
             if lat_final or lon_final:
                 async with aiohttp.ClientSession() as session:
                     await store_data(session, current_time, objects_track_history,lat_final,lon_final)
+                    objects_track_history = {}
             else:
                 async with aiohttp.ClientSession() as session:
                     await store_data(session,current_time, objects_track_history,lat,lon)
+                    objects_track_history = {}
             start_time = time.time()
         # cv2.imshow("tracker", img_frame)
         if cv2.waitKey(1) == ord('q'):
