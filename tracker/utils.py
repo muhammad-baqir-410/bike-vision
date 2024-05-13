@@ -102,6 +102,7 @@ async def process_frames(preview_queue, tracklets_queue):
                 break
     if ser_gps is not None:
         ser_gps.close()
+    cv2.destroyAllWindows()  # Ensure all windows are closed if they were opened
 
 
 def calculate_fps(start_time, counter):
