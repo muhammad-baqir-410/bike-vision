@@ -63,7 +63,6 @@ async def process_frames(preview_queue, tracklets_queue):
     interval = 60
     img_frame  = None
     objects_track_history = {}
-    display_available = 'DISPLAY' in os.environ  # Check for display availability
 
     # Open serial connection for continuous GPS data reading
     lat_final, lon_final = 0, 0
@@ -73,6 +72,7 @@ async def process_frames(preview_queue, tracklets_queue):
         except:
             ser_gps = None
         # try:
+        display_available = 'DISPLAY' in os.environ  # Check for display availability
         img_frame_get = preview_queue.get()
         img_frame =  img_frame_get.getCvFrame()
         track = tracklets_queue.get()
