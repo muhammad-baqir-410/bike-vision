@@ -7,6 +7,7 @@ from gps import is_valid_gps_data, parse_gpgga
 from tracker.store_data import store_data
 import asyncio
 import aiohttp
+import os 
 
 def draw_tracklet_info(frame, label, object_id, status, x1, y1, x2, y2):
     """
@@ -62,6 +63,8 @@ async def process_frames(preview_queue, tracklets_queue):
     interval = 60
     img_frame  = None
     objects_track_history = {}
+    display_available = 'DISPLAY' in os.environ  # Check for display availability
+
     # Open serial connection for continuous GPS data reading
     lat_final, lon_final = 0, 0
     while True:
@@ -92,9 +95,11 @@ async def process_frames(preview_queue, tracklets_queue):
                     await store_data(session,current_time, objects_track_history,lat,lon)
                     objects_track_history = {}
             start_time = time.time()
-        # cv2.imshow("tracker", img_frame)
-        if cv2.waitKey(1) == ord('q'):
-            break
+        # Conditional display check
+        if display_available:
+            cv2.imshow("tracker", img_frame)
+            if cv2.waitKey(1) == ord('q'):
+                break
     if ser_gps is not None:
         ser_gps.close()
 
