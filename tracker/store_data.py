@@ -107,7 +107,15 @@ async def send_data_to_aws(session, data, api_url, headers):
 def load_json_from_file(filename):
     """Loads JSON data from a file."""
     with open(filename, 'r') as f:
-        return json.load(f)
+        content = f.read().strip()
+        if not content:
+            print(f"File {filename} is empty.")
+            return {}  # or handle it as needed
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError as e:
+            print(f"JSON decode error in file {filename}: {e}")
+            return {} 
 
 
 async def process_stored_data(session, data_directory, api_url, headers):
@@ -116,10 +124,13 @@ async def process_stored_data(session, data_directory, api_url, headers):
         if filename.endswith('.json'):
             filepath = os.path.join(data_directory, filename)
             data = load_json_from_file(filepath)
-            print(data)
-            success = await send_data_to_aws(session, data, api_url, headers)
-            if success:
-                os.remove(filepath) 
+            if data:  # Check if data is not empty
+                print(f"Sending data from file: {filepath}")
+                success = await send_data_to_aws(session, data, api_url, headers)
+                if success:
+                    os.remove(filepath)
+            else:
+                print(f"No data to send from file: {filepath}")
 
 
 async def store_data(session, current_time, objects_track_history, lat, lon):
