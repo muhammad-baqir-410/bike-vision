@@ -6,6 +6,7 @@ import os
 import asyncio
 import aiohttp
 import platform
+import subprocess
 # Your API Gateway endpoint URL (replace with your actual URL)
 api_url = 'https://wqmr8jsh9c.execute-api.us-east-1.amazonaws.com/bike/storeData'
 
@@ -58,20 +59,20 @@ def get_device_id():
         
 
 
-def is_internet_connected(host="8.8.8.8", timeout=1):
-    """
-    Checks for internet availability by pinging a reliable host.
 
-    Args:
-        host: The IP address to ping (default is Google's public DNS server)
-        timeout: Timeout in seconds
+def is_internet_connected():
+    """
+    Checks for internet availability using system network status.
 
     Returns:
         True if internet is connected, False otherwise.
     """
-    param = '-n' if platform.system().lower() == 'windows' else '-c'
-    command = ['ping', param, '1', '-W', str(timeout), host]
-    return os.system(' '.join(command)) == 0
+    try:
+        result = subprocess.run(['nmcli', '-t', '-f', 'STATE', 'g'], capture_output=True, text=True)
+        return "connected" in result.stdout
+    except Exception:
+        return False
+
 
 
 def save_json_data(data, filename):
