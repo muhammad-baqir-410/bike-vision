@@ -131,6 +131,7 @@ async def process_stored_data(session, data_directory, api_url, headers):
                     os.remove(filepath)
             else:
                 print(f"No data to send from file: {filepath}")
+                os.remove(filepath)
 
 
 async def store_data(session, current_time, objects_track_history, lat, lon):
