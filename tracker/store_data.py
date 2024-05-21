@@ -116,6 +116,7 @@ async def process_stored_data(session, data_directory, api_url, headers):
         if filename.endswith('.json'):
             filepath = os.path.join(data_directory, filename)
             data = load_json_from_file(filepath)
+            print(data)
             success = await send_data_to_aws(session, data, api_url, headers)
             if success:
                 os.remove(filepath) 
