@@ -57,7 +57,7 @@ def get_device_id():
             return None
         
 
-def is_internet_connected(hostname="www.google.com"):
+def is_internet_connected(hostname="www.bing.com"):
     """
     Checks for internet availability by attempting to reach a reliable host.
 
