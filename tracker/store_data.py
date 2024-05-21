@@ -5,7 +5,7 @@ import json
 import os
 import asyncio
 import aiohttp
-
+import platform
 # Your API Gateway endpoint URL (replace with your actual URL)
 api_url = 'https://wqmr8jsh9c.execute-api.us-east-1.amazonaws.com/bike/storeData'
 
@@ -57,22 +57,21 @@ def get_device_id():
             return None
         
 
-def is_internet_connected(hostname="www.bing.com"):
+
+def is_internet_connected(host="8.8.8.8", timeout=1):
     """
-    Checks for internet availability by attempting to reach a reliable host.
+    Checks for internet availability by pinging a reliable host.
 
     Args:
-        hostname: The hostname to check (default is www.google.com)
+        host: The IP address to ping (default is Google's public DNS server)
+        timeout: Timeout in seconds
 
     Returns:
         True if internet is connected, False otherwise.
     """
-    try:
-        # Try to send a request to the specified hostname
-        requests.get("http://" + hostname, timeout=3)
-        return True
-    except (requests.ConnectionError, requests.Timeout) as exception:
-        return False
+    param = '-n' if platform.system().lower() == 'windows' else '-c'
+    command = ['ping', param, '1', '-W', str(timeout), host]
+    return os.system(' '.join(command)) == 0
 
 
 def save_json_data(data, filename):
