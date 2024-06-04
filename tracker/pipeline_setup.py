@@ -18,7 +18,7 @@ def initialize_device(pipeline):
             tracklets_queue = device.getOutputQueue("tracklets", 4, False)
             try:
                 # Send initial command to /dev/ttyS0
-                ser_init = serial.Serial('/dev/ttyS0', baudrate=115200, timeout=1)
+                ser_init = serial.Serial('/dev/ttyAMA0', baudrate=115200, timeout=1)
                 response = send_at_command(ser_init, 'AT+CGPS=1')
                 print("Initial command response:", response)
                 ser_init.close()
