@@ -60,7 +60,7 @@ def get_gps(ser_gps):
 
 async def process_frames(preview_queue, tracklets_queue):
     start_time = time.time()
-    interval = 20
+    interval = 600
     img_frame  = None
     objects_track_history = {}
 
