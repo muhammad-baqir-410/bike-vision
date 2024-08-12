@@ -49,16 +49,14 @@ def get_gps(ser_gps):
     if line.startswith('$GPGGA'):
         if is_valid_gps_data(line):
             lat, lon = parse_gpgga(line)
-            # print(f"Latitude: {lat}, Longitude: {lon}")
             return lat, lon
         else:
-            # print("Waiting for valid GPS data...")
             return 0, 0
     else:
         return 0, 0
 
 
-async def process_frames(preview_queue, tracklets_queue):
+async def process_frames(preview_queue, tracklets_queue,gps_port):
     start_time = time.time()
     interval = 600
     img_frame  = None
@@ -68,7 +66,7 @@ async def process_frames(preview_queue, tracklets_queue):
     lat_final, lon_final = 0, 0
     while True:
         try:
-            ser_gps = serial.Serial('/dev/ttyUSB1', baudrate=9600, timeout=1)
+            ser_gps = serial.Serial(gps_port, baudrate=9600, timeout=1)
         except:
             ser_gps = None
         # try:

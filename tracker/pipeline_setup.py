@@ -1,10 +1,9 @@
-# Import necessary libraries
 import depthai as dai
 from .config import nnPathDefault, labelMap
 from tracker.utils import process_frames
-import serial
-from gps import send_at_command
+from gps import send_at_command, find_gps_ports, is_valid_gps_response
 import asyncio
+import serial
 
     # Connect to device and start pipeline
 def initialize_device(pipeline):
@@ -16,20 +15,43 @@ def initialize_device(pipeline):
             print("Device connected, starting pipeline...")
             preview_queue = device.getOutputQueue("preview", 4, False)
             tracklets_queue = device.getOutputQueue("tracklets", 4, False)
-            try:
-                # Send initial command to /dev/ttyS0
-                ser_init = serial.Serial('/dev/ttyAMA0', baudrate=115200, timeout=1)
-                response = send_at_command(ser_init, 'AT+CGPS=1')
-                print("Initial command response:", response)
-                ser_init.close()
-            except:
-                pass
-            asyncio.run(process_frames(preview_queue, tracklets_queue))
-            
+
+            # Find the correct GPS port dynamically (once)
+            gps_port = None
+            gps_ports = find_gps_ports()
+
+            if gps_ports:
+                for port in gps_ports:
+                    try:
+                        ser_gps = serial.Serial(port, baudrate=115200, timeout=1)
+                        print(f"Connected to GPS on {port}")
+
+                        # Send the AT command to get GPS info
+                        response = send_at_command(ser_gps, 'AT+CGPSINFO=1')
+
+                        # Check if the response contains valid GPS data
+                        if is_valid_gps_response(response):
+                            print(f"Successful GPS response from port {port}")
+                            gps_port = port
+                            break
+                        else:
+                            print(f"No valid GPS data on port {port}, trying next port...")
+
+                    except Exception as e:
+                        print(f"Error connecting to GPS on port {port}: {e}")
+                    finally:
+                        if 'ser_gps' in locals() and ser_gps.is_open:
+                            ser_gps.close()
+                            print(f"Closed GPS serial port on {port}.")
+            else:
+                print("Could not find any matching GPS ports. Please check the connection.")
+
+            # Pass the correct GPS port to the process_frames function
+            asyncio.run(process_frames(preview_queue, tracklets_queue, gps_port))
+
             return False
     except Exception as e:
         print(f"Failed to initialize device and pipeline: {e}")
-        # raise
         initialize_device(pipeline)
 
 def create_pipeline(full_frame_tracking, nn_path=nnPathDefault, label_list=None):
