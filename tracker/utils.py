@@ -46,7 +46,7 @@ def get_gps(ser_gps):
     if ser_gps is None:
         return 0, 0
     line = ser_gps.readline().decode('ascii', errors='replace').strip()
-    print(line)
+    print("line: ",line)
     if line.startswith('$GPGGA'):
         if is_valid_gps_data(line):
             lat, lon = parse_gpgga(line)
