@@ -47,7 +47,7 @@ def get_gps(ser_gps):
         return 0, 0
     while True:
         line = ser_gps.readline().decode('ascii', errors='replace').strip()
-        print("line: ", line)
+        # print("line: ", line)
         if line.startswith('$GPGGA'):
             if is_valid_gps_data(line):
                 lat, lon = parse_gpgga(line)
@@ -77,7 +77,7 @@ async def process_frames(preview_queue, tracklets_queue,gps_port):
         tracklets_data = track.tracklets
         process_tracklets(tracklets_data, img_frame,objects_track_history )
         lat, lon = get_gps(ser_gps)
-        print(f"Before Latitude: {lat}, Before Longitude: {lon}")
+        # print(f"Before Latitude: {lat}, Before Longitude: {lon}")
         if lat or lon:
             lat_final, lon_final = lat, lon
         print(f"Latitude: {lat_final}, Longitude: {lon_final}")
