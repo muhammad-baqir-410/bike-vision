@@ -66,7 +66,7 @@ async def process_frames(preview_queue, tracklets_queue,gps_port):
     lat_final, lon_final = 0, 0
     while True:
         try:
-            ser_gps = serial.Serial(gps_port, baudrate=9600, timeout=1)
+            ser_gps = serial.Serial(gps_port, baudrate=115200, timeout=1)
         except:
             ser_gps = None
         # try:
