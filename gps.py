@@ -1,20 +1,32 @@
 import serial
+import serial.tools.list_ports
 import time
 
-def is_valid_gps_data(sentence):
-    """ Check if the sentence has valid GPS data """
-    fields = sentence.split(',')
-    if len(fields) < 6 or fields[2] == '' or fields[4] == '':
-        return False
-    return True
+def find_gps_ports(description_keyword="SimTech"):
+    ports = serial.tools.list_ports.comports()
+    matching_ports = []
+    for port in ports:
+        print(f"Checking port {port.device}: {port.description}")
+        if description_keyword in port.description:
+            matching_ports.append(port.device)
+    return matching_ports
 
-def send_at_command(ser, command, delay=1):
-    ser.write((command+'\r\n').encode())
+def send_at_command(ser, command, delay=2):
+    print(f"Sending command: {command}")
+    ser.write((command + '\r\n').encode())
     time.sleep(delay)
-    return ser.read_all().decode()
+    response = ser.read_all().decode()
+    print(f"Received response: {response}")
+    return response
+
+def is_valid_gps_response(response):
+    nmea_sentences = ['$GNGNS', '$GPGGA', '$GPRMC']
+    for sentence in nmea_sentences:
+        if sentence in response:
+            return True
+    return False
 
 def ddm_to_dd(degrees_minutes):
-    """ Convert from degrees and decimal minutes to decimal degrees """
     d, m = divmod(float(degrees_minutes), 100)
     return d + (m / 60)
 
@@ -25,18 +37,15 @@ def parse_gpgga(sentence):
     lat_dir = fields[3]
     lon_dir = fields[5]
 
-    # Convert to decimal degrees
     lat_dd = ddm_to_dd(lat_ddm)
     lon_dd = ddm_to_dd(lon_ddm)
 
-    # Adjust for direction
     if lat_dir == 'S':
         lat_dd = -lat_dd
     if lon_dir == 'W':
         lon_dd = -lon_dd
 
     return lat_dd, lon_dd
-
 
 # Send initial command to /dev/ttyS0
 # ser_init = serial.Serial('/dev/ttyS0', baudrate=115200, timeout=1)
