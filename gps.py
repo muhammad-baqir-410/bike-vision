@@ -47,6 +47,13 @@ def parse_gpgga(sentence):
 
     return lat_dd, lon_dd
 
+def is_valid_gps_data(sentence):
+    """ Check if the sentence has valid GPS data """
+    fields = sentence.split(',')
+    if len(fields) < 6 or fields[2] == '' or fields[4] == '':
+        return False
+    return True
+
 # Send initial command to /dev/ttyS0
 # ser_init = serial.Serial('/dev/ttyS0', baudrate=115200, timeout=1)
 # response = send_at_command(ser_init, 'AT+CGPS=1')
