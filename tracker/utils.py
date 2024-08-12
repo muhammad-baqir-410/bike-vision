@@ -45,16 +45,15 @@ def process_tracklets(tracklets_data, frame,objects_track_history):
 def get_gps(ser_gps):
     if ser_gps is None:
         return 0, 0
-    line = ser_gps.readline().decode('ascii', errors='replace').strip()
-    print("line: ",line)
-    if line.startswith('$GPGGA'):
-        if is_valid_gps_data(line):
-            lat, lon = parse_gpgga(line)
-            return lat, lon
-        else:
-            return 0, 0
-    else:
-        return 0, 0
+    while True:
+        line = ser_gps.readline().decode('ascii', errors='replace').strip()
+        print("line: ", line)
+        if line.startswith('$GPGGA'):
+            if is_valid_gps_data(line):
+                lat, lon = parse_gpgga(line)
+                return lat, lon
+            else:
+                return 0, 0
 
 
 async def process_frames(preview_queue, tracklets_queue,gps_port):
