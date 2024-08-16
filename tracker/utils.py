@@ -56,9 +56,9 @@ def get_gps(ser_gps):
                 return 0, 0
 
 
-async def handle_gps(gps_port, shared_data):
+async def handle_gps( shared_data):
     try:
-        with serial.Serial(gps_port, baudrate=115200, timeout=1) as ser_gps:
+        with serial.Serial("/dev/ttyUSB1", baudrate=9600, timeout=1) as ser_gps:
             while True:
                 lat, lon = get_gps(ser_gps)
                 shared_data['lat'], shared_data['lon'] = lat, lon

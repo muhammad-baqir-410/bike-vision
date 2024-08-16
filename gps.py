@@ -55,24 +55,25 @@ def is_valid_gps_data(sentence):
     return True
 
 # Send initial command to /dev/ttyS0
-# ser_init = serial.Serial('/dev/ttyS0', baudrate=115200, timeout=1)
-# response = send_at_command(ser_init, 'AT+CGPS=1')
-# print("Initial command response:", response)
-# ser_init.close()
+ser_init = serial.Serial('/dev/ttyS0', baudrate=115200, timeout=1)
+response = send_at_command(ser_init, 'AT+CGPS=1')
+print("Initial command response:", response)
+ser_init.close()
 
-# # Open serial connection for continuous GPS data reading
-# ser_gps = serial.Serial('/dev/ttyUSB1', baudrate=9600, timeout=1)
+# Open serial connection for continuous GPS data reading
+ser_gps = serial.Serial('/dev/ttyUSB1', baudrate=9600, timeout=1)
 
-# try:
-#     while True:
-#         line = ser_gps.readline().decode('ascii', errors='replace').strip()
-#         if line.startswith('$GPGGA'):
-#             if is_valid_gps_data(line):
-#                 lat, lon = parse_gpgga(line)
-#                 print(f"Latitude: {lat}, Longitude: {lon}")
-#             else:
-#                 print("Waiting for valid GPS data...")
-# except KeyboardInterrupt:
-#     print("Script interrupted by user")
 
-# ser_gps.close()
+try:
+    while True:
+        line = ser_gps.readline().decode('ascii', errors='replace').strip()
+        if line.startswith('$GPGGA'):
+            if is_valid_gps_data(line):
+                lat, lon = parse_gpgga(line)
+                print(f"Latitude: {lat}, Longitude: {lon}")
+            else:
+                print("Waiting for valid GPS data...")
+except KeyboardInterrupt:
+    print("Script interrupted by user")
+
+ser_gps.close()

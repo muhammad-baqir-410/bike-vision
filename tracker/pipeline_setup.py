@@ -13,6 +13,10 @@ async def initialize_device(pipeline):
     """
     try:
         with dai.Device(pipeline) as device:
+            ser_init = serial.Serial('/dev/ttyS0', baudrate=115200, timeout=1)
+            response = send_at_command(ser_init, 'AT+CGPS=1')
+            print("Initial command response:", response)
+            ser_init.close()
             print("Device connected, starting pipeline...")
             preview_queue = device.getOutputQueue("preview", 4, False)
             tracklets_queue = device.getOutputQueue("tracklets", 4, False)
