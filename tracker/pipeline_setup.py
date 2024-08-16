@@ -1,12 +1,13 @@
 import depthai as dai
 from .config import nnPathDefault, labelMap
-from tracker.utils import process_frames
+from tracker.utils import process_frames, handle_gps, store_data_loop
 from gps import send_at_command, find_gps_ports, is_valid_gps_response
 import asyncio
 import serial
+import os
 
     # Connect to device and start pipeline
-def initialize_device(pipeline):
+async def initialize_device(pipeline):
     """
     Initialize the device and output queues.
     """
@@ -17,37 +18,21 @@ def initialize_device(pipeline):
             tracklets_queue = device.getOutputQueue("tracklets", 4, False)
 
             # Find the correct GPS port dynamically (once)
-            gps_port = None
-            gps_ports = find_gps_ports()
-
-            if gps_ports:
-                for port in gps_ports:
-                    try:
-                        ser_gps = serial.Serial(port, baudrate=115200, timeout=1)
-                        print(f"Connected to GPS on {port}")
-
-                        # Send the AT command to get GPS info
-                        response = send_at_command(ser_gps, 'AT+CGPSINFO=1')
-
-                        # Check if the response contains valid GPS data
-                        if is_valid_gps_response(response):
-                            print(f"Successful GPS response from port {port}")
-                            gps_port = port
-                            break
-                        else:
-                            print(f"No valid GPS data on port {port}, trying next port...")
-
-                    except Exception as e:
-                        print(f"Error connecting to GPS on port {port}: {e}")
-                    finally:
-                        if 'ser_gps' in locals() and ser_gps.is_open:
-                            ser_gps.close()
-                            print(f"Closed GPS serial port on {port}.")
-            else:
-                print("Could not find any matching GPS ports. Please check the connection.")
 
             # Pass the correct GPS port to the process_frames function
-            asyncio.run(process_frames(preview_queue, tracklets_queue, gps_port))
+            shared_data = {
+                'lat': 0,
+                'lon': 0,
+                'objects_track_history': {},
+                'display': 'DISPLAY' in os.environ
+            }
+
+            # Start asynchronous tasks
+            task1 = asyncio.create_task(process_frames(preview_queue, tracklets_queue, shared_data))
+            task2 = asyncio.create_task(handle_gps("/dev/ttyUSB0", shared_data))
+            task3 = asyncio.create_task(store_data_loop(shared_data))
+
+            await asyncio.gather(task1, task2, task3)
 
             return False
     except Exception as e:

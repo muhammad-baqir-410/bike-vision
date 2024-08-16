@@ -56,54 +56,43 @@ def get_gps(ser_gps):
                 return 0, 0
 
 
-async def process_frames(preview_queue, tracklets_queue,gps_port):
-    start_time = time.time()
-    interval = 600
-    img_frame  = None
-    objects_track_history = {}
+async def handle_gps(gps_port, shared_data):
+    try:
+        with serial.Serial(gps_port, baudrate=115200, timeout=1) as ser_gps:
+            while True:
+                lat, lon = get_gps(ser_gps)
+                shared_data['lat'], shared_data['lon'] = lat, lon
+                await asyncio.sleep(10)  # Adjust as needed
+    except Exception as e:
+        print(f"Error reading GPS data: {e}")
 
-    # Open serial connection for continuous GPS data reading
-    lat_final, lon_final = 0, 0
+
+
+async def store_data_loop(shared_data):
     while True:
-        try:
-            ser_gps = serial.Serial(gps_port, baudrate=115200, timeout=1)
-        except:
-            ser_gps = None
-        # try:
-        display_available = 'DISPLAY' in os.environ  # Check for display availability
-        img_frame_get = preview_queue.get()
-        img_frame =  img_frame_get.getCvFrame()
-        track = tracklets_queue.get()
-        tracklets_data = track.tracklets
-        process_tracklets(tracklets_data, img_frame,objects_track_history )
-        lat, lon = get_gps(ser_gps)
-        # print(f"Before Latitude: {lat}, Before Longitude: {lon}")
-        if lat or lon:
-            lat_final, lon_final = lat, lon
-        print(f"Latitude: {lat_final}, Longitude: {lon_final}")
-        # print(f"Latitude: {lat}, Longitude: {lon}")
-        # Consider adding more functionality here, such as handling unique object counts
         current_time = time.time()
-        elapsed_time = current_time - start_time
-        if elapsed_time >= interval:
-            if lat_final or lon_final:
-                async with aiohttp.ClientSession() as session:
-                    await store_data(session, current_time, objects_track_history,lat_final,lon_final)
-                    objects_track_history = {}
-            else:
-                async with aiohttp.ClientSession() as session:
-                    await store_data(session,current_time, objects_track_history,lat,lon)
-                    objects_track_history = {}
-            start_time = time.time()
-        # Conditional display check
-        if display_available:
-            cv2.imshow("tracker", img_frame)
-            if cv2.waitKey(1) == ord('q'):
-                break
-    if ser_gps is not None:
-        ser_gps.close()
-    cv2.destroyAllWindows()  # Ensure all windows are closed if they were opened
+        await asyncio.sleep(600)  # 10 minutes interval
+        if shared_data['lat'] or shared_data['lon']:
+            async with aiohttp.ClientSession() as session:
+                await store_data(session, current_time, shared_data['objects_track_history'], shared_data['lat'], shared_data['lon'])
+                shared_data['objects_track_history'] = {}
 
+
+
+async def process_frames(preview_queue, tracklets_queue, shared_data):
+    try:
+        while True:
+            img_frame_get = preview_queue.get()
+            img_frame = img_frame_get.getCvFrame()
+            track = tracklets_queue.get()
+            tracklets_data = track.tracklets
+            process_tracklets(tracklets_data, img_frame, shared_data['objects_track_history'])
+            if shared_data['display']:
+                cv2.imshow("tracker", img_frame)
+                if cv2.waitKey(1) == ord('q'):
+                    break
+    except Exception as e:
+        print(f"Error processing frames: {e}")
 
 def calculate_fps(start_time, counter):
     """
