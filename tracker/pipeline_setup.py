@@ -17,37 +17,9 @@ def initialize_device(pipeline):
             tracklets_queue = device.getOutputQueue("tracklets", 4, False)
 
             # Find the correct GPS port dynamically (once)
-            gps_port = None
-            gps_ports = find_gps_ports()
-
-            if gps_ports:
-                for port in gps_ports:
-                    try:
-                        ser_gps = serial.Serial(port, baudrate=115200, timeout=1)
-                        print(f"Connected to GPS on {port}")
-
-                        # Send the AT command to get GPS info
-                        response = send_at_command(ser_gps, 'AT+CGPSINFO=1')
-
-                        # Check if the response contains valid GPS data
-                        if is_valid_gps_response(response):
-                            print(f"Successful GPS response from port {port}")
-                            gps_port = port
-                            break
-                        else:
-                            print(f"No valid GPS data on port {port}, trying next port...")
-
-                    except Exception as e:
-                        print(f"Error connecting to GPS on port {port}: {e}")
-                    finally:
-                        if 'ser_gps' in locals() and ser_gps.is_open:
-                            ser_gps.close()
-                            print(f"Closed GPS serial port on {port}.")
-            else:
-                print("Could not find any matching GPS ports. Please check the connection.")
 
             # Pass the correct GPS port to the process_frames function
-            asyncio.run(process_frames(preview_queue, tracklets_queue, gps_port))
+            asyncio.run(process_frames(preview_queue, tracklets_queue, "/dev/ttyUSB1"))
 
             return False
     except Exception as e:
